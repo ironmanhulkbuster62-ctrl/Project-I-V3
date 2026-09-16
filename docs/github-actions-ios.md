@@ -15,12 +15,12 @@ Pushing a tag whose name starts with `v` also runs the workflow.
 
 ## What the workflow does
 
-The job installs the committed pnpm lockfile, type-checks the Expo app,
-generates its native iOS project, installs CocoaPods, and builds a Release app
-for the physical-device SDK with code signing disabled. It then places the app
-inside `Payload/`, creates `ProjectIstiqamah-unsigned.ipa`, verifies the
-production JavaScript bundle and Live Activity extension are embedded, checks
-the archive, and uploads it for 14 days.
+The job installs XcodeGen, generates the Xcode project from the checked-in
+`project.json`, and builds the SwiftUI app and ActivityKit widget extension for
+the physical-device SDK with code signing disabled. It then places the app
+inside `Payload/`, creates `ProjectIstiqamah-unsigned.ipa`, verifies the native
+Live Activity extension is embedded, checks the archive, and uploads it for 14
+days. Expo, React Native, Node.js, and CocoaPods are not part of this build.
 
 ## Installing it
 
@@ -30,4 +30,5 @@ workflow intentionally does not store or use signing credentials.
 
 The app uses the bundle identifier `com.projectistiqamah.app`. If a signing tool
 requires a different identifier, configure that in the signing tool or update
-`ios.bundleIdentifier` in `artifacts/project-istiqamah/app.json` before building.
+`PRODUCT_BUNDLE_IDENTIFIER` in `artifacts/project-istiqamah/project.json` before
+building.

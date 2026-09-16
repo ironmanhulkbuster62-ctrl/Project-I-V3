@@ -1,0 +1,105 @@
+{
+  "name": "ProjectIstiqamah",
+  "options": {
+    "bundleIdPrefix": "com.projectistiqamah",
+    "deploymentTarget": {
+      "iOS": "18.0"
+    },
+    "createIntermediateGroups": true
+  },
+  "settings": {
+    "base": {
+      "SWIFT_VERSION": "5.0",
+      "CURRENT_PROJECT_VERSION": "1",
+      "MARKETING_VERSION": "1.0.0",
+      "DEVELOPMENT_TEAM": ""
+    }
+  },
+  "targets": {
+    "ProjectIstiqamah": {
+      "type": "application",
+      "platform": "iOS",
+      "sources": [
+        { "path": "Sources/App" },
+        { "path": "Sources/Shared" },
+        { "path": "Resources/Sounds/gentle-chime.wav", "buildPhase": "resources" },
+        { "path": "Resources/Sounds/bright-bell.wav", "buildPhase": "resources" },
+        { "path": "Resources/Sounds/focus-pulse.wav", "buildPhase": "resources" },
+        { "path": "assets/images/icon.png", "buildPhase": "resources" }
+      ],
+      "dependencies": [
+        { "target": "ProjectIstiqamahWidgets", "embed": true }
+      ],
+      "info": {
+        "path": "Config/Info.plist",
+        "properties": {
+          "CFBundleDisplayName": "Project Istiqamah",
+          "CFBundleIconFiles": ["icon"],
+          "CFBundleURLTypes": [
+            {
+              "CFBundleURLName": "com.projectistiqamah.app",
+              "CFBundleURLSchemes": ["project-istiqamah"]
+            }
+          ],
+          "BGTaskSchedulerPermittedIdentifiers": [
+            "com.projectistiqamah.app.refresh"
+          ],
+          "NSSupportsLiveActivities": true,
+          "NSSupportsLiveActivitiesFrequentUpdates": true,
+          "UIBackgroundModes": ["fetch"],
+          "UILaunchScreen": {},
+          "UIApplicationSceneManifest": {
+            "UIApplicationSupportsMultipleScenes": false
+          },
+          "UIRequiresFullScreen": true,
+          "UISupportedInterfaceOrientations": ["UIInterfaceOrientationPortrait"]
+        }
+      },
+      "settings": {
+        "base": {
+          "PRODUCT_BUNDLE_IDENTIFIER": "com.projectistiqamah.app",
+          "PRODUCT_NAME": "ProjectIstiqamah",
+          "TARGETED_DEVICE_FAMILY": "1"
+        }
+      }
+    },
+    "ProjectIstiqamahWidgets": {
+      "type": "app-extension",
+      "platform": "iOS",
+      "sources": [
+        { "path": "Sources/Widgets" },
+        { "path": "Sources/Shared/BlockActivityAttributes.swift" }
+      ],
+      "info": {
+        "path": "Config/WidgetInfo.plist",
+        "properties": {
+          "CFBundleDisplayName": "Project Istiqamah Live Activity",
+          "NSExtension": {
+            "NSExtensionPointIdentifier": "com.apple.widgetkit-extension"
+          }
+        }
+      },
+      "settings": {
+        "base": {
+          "PRODUCT_BUNDLE_IDENTIFIER": "com.projectistiqamah.app.widgets",
+          "PRODUCT_NAME": "ProjectIstiqamahWidgets",
+          "SKIP_INSTALL": true,
+          "APPLICATION_EXTENSION_API_ONLY": true,
+          "TARGETED_DEVICE_FAMILY": "1"
+        }
+      }
+    }
+  },
+  "schemes": {
+    "ProjectIstiqamah": {
+      "build": {
+        "targets": {
+          "ProjectIstiqamah": "all",
+          "ProjectIstiqamahWidgets": "all"
+        }
+      },
+      "run": { "config": "Debug" },
+      "archive": { "config": "Release" }
+    }
+  }
+}

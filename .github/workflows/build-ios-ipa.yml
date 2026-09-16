@@ -26,32 +26,12 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Set up pnpm
-        uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
-        with:
-          version: 10.34.5
-          run_install: false
+      - name: Install XcodeGen
+        run: brew install xcodegen
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: pnpm
-          cache-dependency-path: pnpm-lock.yaml
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Type-check app
-        run: pnpm --filter @workspace/project-istiqamah run typecheck
-
-      - name: Generate native iOS project
+      - name: Generate Xcode project
         working-directory: ${{ env.APP_DIR }}
-        run: pnpm exec expo prebuild --platform ios --clean --no-install
-
-      - name: Install CocoaPods
-        working-directory: ${{ env.APP_DIR }}/ios
-        run: pod install --repo-update
+        run: xcodegen generate --spec project.json
 
       - name: Build unsigned device app
         working-directory: ${{ env.APP_DIR }}
@@ -60,7 +40,7 @@ jobs:
 
           rm -rf build
           xcodebuild \
-            -workspace ios/ProjectIstiqamah.xcworkspace \
+            -project ProjectIstiqamah.xcodeproj \
             -scheme ProjectIstiqamah \
             -configuration Release \
             -sdk iphoneos \
@@ -78,8 +58,7 @@ jobs:
 
           app_path="build/DerivedData/Build/Products/Release-iphoneos/ProjectIstiqamah.app"
           ipa_path="build/ProjectIstiqamah-unsigned.ipa"
-          widget_path="$app_path/PlugIns/ExpoWidgetsTarget.appex"
-          bundle_path="$app_path/main.jsbundle"
+          widget_path="$app_path/PlugIns/ProjectIstiqamahWidgets.appex"
 
           if [[ ! -d "$app_path" ]]; then
             echo "Expected app was not produced at $app_path" >&2
@@ -89,11 +68,6 @@ jobs:
 
           if [[ ! -d "$widget_path" ]]; then
             echo "Expected Live Activity extension was not embedded at $widget_path" >&2
-            exit 1
-          fi
-
-          if [[ ! -s "$bundle_path" ]]; then
-            echo "Expected production JavaScript bundle was not produced at $bundle_path" >&2
             exit 1
           fi
 

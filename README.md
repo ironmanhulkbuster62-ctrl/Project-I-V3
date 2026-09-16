@@ -1,127 +1,113 @@
 # Project Istiqamah
 
-Project Istiqamah is a private, local-first time-blocking and consistency app built with Expo and React Native. It helps you define intentional blocks for the day, break them into small actions, record completion, and review your consistency over time.
+Project Istiqamah is a private, local-first time-blocking and consistency app
+built natively for iPhone with SwiftUI. It helps you define intentional blocks,
+break them into small actions, record completion, and review consistency.
 
-The main application lives in [`artifacts/project-istiqamah`](artifacts/project-istiqamah).
+The native application lives in [`artifacts/project-istiqamah`](artifacts/project-istiqamah).
 
-## How it works
+## Native iOS architecture
 
-1. Open **Blocks** and create a time block with a name, start and end time, note, and up to five actions.
-2. Use **Today** to move between dates, see the current or next block, and mark blocks or actions complete.
-3. The live timer counts down to an upcoming block or shows the time remaining in an active block.
-4. Open **Progress** to review the last seven days, total completions, consistency, current streak, and most frequently completed block.
-5. Use **Settings** to control haptics, choose a reminder lead time from 5–15 minutes, or export a JSON backup.
+- SwiftUI application and navigation
+- ActivityKit and WidgetKit Live Activity extension
+- BackgroundTasks refresh for best-effort system wakeups
+- Codable JSON persistence in Application Support
+- UserNotifications reminders, start alerts, and completion alerts
+- Charts-based seven-day progress dashboard
+- XcodeGen project definition committed as `project.json`
+- No Expo, React Native, JavaScript bundle, CocoaPods, account, or backend
 
-Tasks, completion history, and preferences are stored on the device with AsyncStorage. No account or backend is required for the current app. First-time users receive four example blocks, which can be edited or deleted.
+## What works now
 
-## Features
+| Area | Implemented behavior |
+| --- | --- |
+| App navigation | Native SwiftUI tabs for Today, Blocks, Progress, and Settings |
+| Block planning | Create, edit, and delete blocks with a name, note, validated 24-hour start/end times, overnight ranges, and up to five checklist actions |
+| Daily view | Previous/next-day navigation, return to today, automatic selection of the running or next block, a one-second countdown, and progress through the active block |
+| Completion | Mark blocks and individual actions complete after their start time; completion is stored separately for each date |
+| Progress | Seven-day chart, completed-block total, practiced-day count, consistency percentage, current streak, and per-block completion totals |
+| Reminders | Time-sensitive alerts before a block, when it starts, and when it ends; the early reminder is configurable to 5, 10, or 15 minutes |
+| Reminder sounds | System Default, Gentle Chime, Bright Bell, and Focus Pulse choices, plus a two-second in-app test reminder |
+| Live Activities | Starts or updates the current block, removes completed or outdated activities, schedules upcoming starts on iOS 26, and provides status, refresh, and restart controls in Settings |
+| Background refresh | Reloads saved blocks during system-granted background time, refreshes notifications and Live Activities, and schedules the next best-effort wakeup near a block transition |
+| Dynamic Island | Compact real-time countdown capsule, expanded remaining-time region on the left, running block in the center, layered glowing native flame on the right, and an Open app link |
+| Lock Screen | Block name, schedule, live countdown, completion prompt after the block ends, and tap-to-open behavior |
+| Deep links | Notification and Live Activity taps open the Today tab on the relevant date and block; an ended-block link can record completion |
+| Local data | Codable JSON persistence in Application Support, preservation of an unreadable data file for recovery, and exclusion of private app data from device/iCloud backup |
+| Preferences | Reminder toggle, reminder timing, sound choice, haptic toggle, notification permission status, and shortcut to iOS Settings |
+| Backup | Pretty-printed JSON export through the native share sheet |
+| CI package | Manual or version-tag GitHub Action builds the app and embedded Live Activity extension into an unsigned IPA |
 
-- Create, edit, and delete daily time blocks
-- Start/end time validation, including blocks that cross midnight
-- Up to five checklist actions per block
-- Completion tracking for any selected date
-- Live countdown and active-block progress indicator
-- Previous/next day navigation and a quick return to today
-- Seven-day completion chart, streaks, consistency statistics, and per-block totals
-- Configurable 5–15 minute reminders plus start and completion alerts
-- Time-sensitive notification sound on iOS and a maximum-importance alarm channel on Android
-- iOS Live Activity with a native countdown on the Lock Screen and Dynamic Island on supported iPhones
-- One-tap completion recording after a block ends from a Live Activity or completion notification
-- Optional haptic feedback
-- Local persistence and migration from older saved-data formats
-- JSON backup export through the native share sheet
-- Light/dark system theme support (the current palette intentionally uses the same dark visual style for both)
-- iOS, Android, and web targets through Expo
+The code and project configuration for these behaviors are present. The JSON
+project definition, property lists, embedded widget target, sound resources,
+and unsigned-IPA workflow can be checked without launching the app. A complete
+runtime check of notifications, Lock Screen presentation, and Dynamic Island
+presentation requires a signed build on a physical iPhone with notification
+and Live Activity permissions enabled.
 
-## Current limitations and pending work
+## Build requirements
 
-These items are not implemented yet:
+- macOS with Xcode 26 or later
+- XcodeGen
+- iOS 18 or later deployment target
 
-- **Apple Screen Time data:** app-usage monitoring needs a native iOS module plus Apple's Family Controls entitlement and cannot run in Expo Go.
-- **Background Live Activity start:** a Live Activity starts automatically while the app process is active. Starting it when the app has been fully terminated still requires either a native bridge to Apple's scheduled ActivityKit API or an APNs push-to-start service; scheduled reminder/start/end notifications continue to work without either service.
-- **Critical alarm audio on iOS:** alerts are time-sensitive and play sound, but bypassing silent mode requires Apple's restricted Critical Alerts entitlement. The app cannot legally force unrestricted or continuously looping alarm audio without it.
-- **Automatic iCloud restore:** data is local to the installed app. Deleting the app also removes its local data, so users should export a backup first.
-- **Backup import:** the app can export JSON but does not yet restore from an exported file.
-- **Cloud sync and accounts:** there is currently no cross-device synchronization or sign-in.
-- **Automated tests:** the project has TypeScript checks but no unit, integration, or end-to-end test suite yet.
-- **Accessibility and localization audit:** labels exist for key controls, but the full app still needs screen-reader, dynamic-type, contrast, and translated-copy testing.
-
-## What could be improved
-
-- Add backup import with schema validation and a preview before replacing local data.
-- Add optional encrypted cloud backup and multi-device sync without making an account mandatory.
-- Add repeat schedules, snooze actions, notification categories, and clearer permission status.
-- Add drag-and-drop block ordering, templates, search, tags, and archived blocks.
-- Expand analytics with weekly/monthly ranges, partial-action progress, and exportable reports.
-- Add a native Screen Time integration once entitlements and privacy flows are available.
-- Add tests for time calculations, storage migration, task editing, notification scheduling, and progress statistics.
-- Replace duplicated visual tokens and add a true light theme.
-
-## Requirements
-
-- Node.js 24
-- pnpm 10.34.5 (declared in the root `package.json`)
-
-## Install
-
-From the repository root:
+Generate the Xcode project:
 
 ```bash
-pnpm install --frozen-lockfile
+cd artifacts/project-istiqamah
+xcodegen generate --spec project.json
+open ProjectIstiqamah.xcodeproj
 ```
 
-## Run the app
+Choose an Apple development team in Xcode, then run the `ProjectIstiqamah`
+scheme on an iPhone. Live Activities require a physical supported device for
+complete Dynamic Island testing.
 
-The repository's `dev` script is configured for its hosted Replit environment. For normal local Expo development, run:
+## Unsigned IPA
 
-```bash
-pnpm --filter @workspace/project-istiqamah exec expo start
-```
-
-Then choose iOS, Android, or web from the Expo terminal. Native notifications require a supported iOS or Android build; web does not schedule them.
-
-Live Activities require a native iOS build and do not work in Expo Go. They appear on the Lock Screen on supported iOS versions and in the Dynamic Island on compatible iPhone models. The `expo-widgets` config plugin creates the required widget extension during native generation.
-
-To produce and serve the hosted Expo manifests and native bundles:
-
-```bash
-pnpm --filter @workspace/project-istiqamah run build
-pnpm --filter @workspace/project-istiqamah run serve
-```
-
-The build expects one of `REPLIT_INTERNAL_APP_DOMAIN`, `REPLIT_DEV_DOMAIN`, or `EXPO_PUBLIC_DOMAIN` to identify its public host. The static server uses `PORT` when set and otherwise listens on port `3000`.
-
-## Validate
-
-```bash
-# Check all TypeScript workspaces
-pnpm run typecheck
-
-# Type-check only the mobile app
-pnpm --filter @workspace/project-istiqamah run typecheck
-
-# Type-check and build every package that defines a build script
-pnpm run build
-```
+The GitHub workflow in `.github/workflows/build-ios-ipa.yml` generates the
+Xcode project, builds the native app and widget extension, and publishes an
+unsigned IPA artifact. See [`docs/github-actions-ios.md`](docs/github-actions-ios.md).
 
 ## Repository structure
 
-| Path                                    | Purpose                                                            |
-| --------------------------------------- | ------------------------------------------------------------------ |
-| `artifacts/project-istiqamah/app`       | Expo Router screens and navigation                                 |
-| `artifacts/project-istiqamah/context`   | Task state, preferences, persistence, and data migration           |
-| `artifacts/project-istiqamah/lib`       | Time and notification helpers                                      |
-| `artifacts/project-istiqamah/constants` | Shared visual tokens                                               |
-| `artifacts/project-istiqamah/scripts`   | Static web export tooling                                          |
-| `artifacts/project-istiqamah/server`    | Static-build server and landing page                               |
-| `artifacts/api-server`                  | Separate starter API artifact; not used by the current mobile app  |
-| `artifacts/mockup-sandbox`              | Separate UI mockup artifact; not used by the current mobile app    |
-| `lib`                                   | Shared database and generated API packages for workspace expansion |
-| `docs/github-actions-ios.md`            | iOS build notes                                                    |
+| Path | Purpose |
+| --- | --- |
+| `artifacts/project-istiqamah/Sources/App` | SwiftUI app, persistence, notifications, and ActivityKit lifecycle |
+| `artifacts/project-istiqamah/Sources/Shared` | Activity attributes shared with the widget extension |
+| `artifacts/project-istiqamah/Sources/Widgets` | Native WidgetKit and Dynamic Island UI |
+| `artifacts/project-istiqamah/Config` | Generated app and extension property-list paths |
+| `artifacts/project-istiqamah/Resources/Sounds` | Bundled Linear PCM reminder sounds |
+| `artifacts/project-istiqamah/project.json` | XcodeGen project source of truth |
+
+## Current limitations and next work
+
+- Existing Expo AsyncStorage data is not automatically migrated; export it
+  before installing the native rewrite if it must be retained.
+- Scheduled Live Activity starts require iOS 26. On iOS 18–25, the current
+  block starts its Live Activity whenever the app is active and notifications
+  remain the background fallback.
+- iOS does not allow this app to run continuously. Background App Refresh is
+  system-controlled and may run later than requested or not run at all, so it
+  cannot guarantee an exact Live Activity start.
+- Immediate WhatsApp-style remote updates require an APNs provider and backend.
+  This local-first app has no account or server, so it does not register or
+  upload push tokens.
+- Dynamic Island is available only on supported iPhone models. The flame is an
+  animated native SF Symbol, not a bundled GIF.
+- An unsigned IPA must be signed before it can be installed on an iPhone.
+- The app exports backups but does not import them yet.
+- Repeat schedules, weekday selection, snooze, templates, tags, search, and
+  archives are not implemented.
+- Screen Time integration still requires Apple's Family Controls entitlement.
+- Accessibility and localization need a complete device audit.
+- Native unit, UI, and snapshot tests remain to be added.
 
 ## Data and privacy
 
-The current product does not send task data to the included API starter. Task content and preferences remain in AsyncStorage on the device unless the user explicitly shares an exported backup. Notification permission is requested only when reminders are enabled on a native device.
+Task content and preferences stay in the app's Application Support directory,
+which is excluded from device and iCloud backups. Data leaves the device only
+when the user explicitly shares an exported backup.
 
 ## License
 

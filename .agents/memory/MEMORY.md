@@ -1,1 +1,0 @@
-- [iOS usage monitoring](ios-usage-monitoring.md) — Screen Time data needs a native FamilyControls/DeviceActivity build; Expo Go cannot provide it.
